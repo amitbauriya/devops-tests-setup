@@ -1,0 +1,45 @@
+jenkins:
+  systemMessage: "Jenkins configured automatically by Jenkins Configuration as Code plugin\n\n"
+  numExecutors: 5
+  scmCheckoutRetryCount: 2
+  mode: NORMAL
+
+  securityRealm:
+    local:
+      allowsSignup: "false"
+      users:
+        - id: "ladmin"
+          password: "localoca"
+          name: "Local Admin"
+          properties:
+            - mailer:
+                emailAddress: "admin@jenkins.local"
+  
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  
+  remotingSecurity:
+    enabled: true
+
+tool:
+  git:
+    installations:
+      - name: git
+        home: /usr/local/bin/git
+
+  jdk:
+    installations:
+      - name: jdk8
+        home: "/jdk"
+        properties:
+          - installSource:
+              installers:
+                - jdkInstaller:
+                    id: "jdk-8u181-oth-JPR"
+                    acceptLicense: true
+
+unclassified:
+  location:
+    adminAddress: "admin@jenkins.local"
+    url: "http://127.0.0.1:8080/"

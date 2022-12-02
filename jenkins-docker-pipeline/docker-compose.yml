@@ -1,0 +1,48 @@
+version: '3'
+
+services: 
+  docker-agent:
+    image: docker:dind
+    depends_on: 
+      - jenkins
+    restart: unless-stopped
+    privileged: true
+    command: --storage-driver=overlay2
+    networks: 
+      jenkins:
+        aliases: 
+          - docker
+    environment: 
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - ./vols/jenkins-docker-certs:/certs/client
+      - ./vols/jenkins-data:/var/jenkins_home
+    ports:
+      - '2376:2376'
+
+  jenkins:
+    image: jenkins-blueocean
+    container_name: jenkins_accrete
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: 1
+    ports:
+      - '8080:8080'
+      - '50000:50000'
+    user: jenkins:jenkins
+    volumes: 
+      - ./vols/jenkins-data:/var/jenkins_home
+      - ./vols/jenkins-docker-certs:/certs/client:ro
+      - ./jenkins/jenkins-config.yaml:/var/casc_configs/jenkins-config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - ${HOST_DEV_HOME}:/var/dev_home:ro
+    networks: 
+      - jenkins
+
+networks:
+  jenkins:
